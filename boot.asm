@@ -19,6 +19,27 @@ step2:
     mov sp, 0x7c00
     sti ; Enables interupts
 
+    mov ah, 2 ; READ SECTOR COMMAND
+    mov al, 1 ; ONE SECTOR TO READ
+    mov ch, 0 ; Cylinder low eight bits
+    mov cl, 2 ; Read sector 2
+    mov dh, 0 ; Head number
+    mov bx, buffer
+    int 0x13 ; read interrupt
+    jc error ; carry flag will be set if there is an error
+
+
+    mov si, buffer
+    call print
+
+    jmp $
+
+error:
+    mov si, error_message
+    call print
+    jmp $
+
+
 print:
     mov bx, 0
 .loop: ; loops until all chars are printed to screen
@@ -35,5 +56,9 @@ print_char:
     int 0x10 ; BIOS interrupt
     ret
 
+error_message: db 'Failed to load sector', 0
+
 times 510- ($ - $$) db 0
 dw 0xAA55
+
+buffer:
