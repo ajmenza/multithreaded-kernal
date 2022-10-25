@@ -1,14 +1,22 @@
-ORG 0x7c00
+ORG 0
 BITS 16
 
 start:
+    cli ; Clear interupts (disable interupts, critical operations)
+    mov ax, 0x7c0
+    mov ds, ax
+    mov es, ax
+    mov ax, 0x00
+    mov ss, ax
+    mov sp, 0x7c00
+    sti ; Enables interupts
     mov si, message
     call print
     jmp $
 
 print:
     mov bx, 0
-.loop:
+.loop: ; loops until all chars are printed to screen
     lodsb ; puts current char into the al register
     cmp al, 0
     je .done
@@ -18,8 +26,8 @@ print:
     ret
 
 print_char:
-    mov ah, 0eh
-    int 0x10
+    mov ah, 0eh ; function for outputing to screen when talking to BIOS, takes char from al register
+    int 0x10 ; BIOS interrupt
     ret
 message: db 'Hello World!', 0
 
